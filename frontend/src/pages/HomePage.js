@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getProducts } from '../api/api';
 import './HomePage.css';
@@ -15,6 +15,8 @@ const HomePage = () => {
   const [reviews, setReviews] = useState(initialReviews);
   const [reviewForm, setReviewForm] = useState({ name: '', comment: '', rating: 5 });
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const reviewFormRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,11 +41,24 @@ const HomePage = () => {
       ...reviews
     ]);
     setReviewForm({ name: '', comment: '', rating: 5 });
+    setShowReviewForm(false);
+  };
+
+  const handleAddReview = () => {
+    setShowReviewForm(true);
+    setTimeout(() => {
+      reviewFormRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   };
 
   // Fonction pour changer manuellement le slide
   const goToSlide = (index) => {
     setCurrentSlide(index);
+  };
+
+  // Fonction pour rediriger vers la page produit
+  const handleProductClick = () => {
+    navigate(`/products`);
   };
 
   return (
@@ -102,7 +117,7 @@ const HomePage = () => {
                 E-co-maroc est votre partenaire de confiance pour tous vos besoins en ligne. Nous proposons une large gamme de produits certifiés, une livraison rapide partout au Maroc et un service client à votre écoute 7j/7.
               </p>
               <p>
-                Notre mission : vous offrir le meilleur, au meilleur prix. Avec plus de 10 000 clients satisfaits, nous nous engageons à vous fournir une expérience d'achat exceptionnelle.
+                Notre mission : vous offrir le meilleur, au meilleur prix. Avec plus de 10 000 clients satisfaits, nous nous engageons à vous fournir une expérience d'achat exceptionnelle.
               </p>
               <div className="stats-container mt-4">
                 <div className="stat-item">
@@ -136,7 +151,8 @@ const HomePage = () => {
               <div className="col" key={product._id}>
                 <div 
                   className="card h-100 product-card"
-                  onClick={() => navigate(`/product/${product._id}`)}
+                  onClick={() => handleProductClick()}
+                  style={{ cursor: 'pointer' }}
                 >
                   <div className="product-image-container">
                     {product.images?.[0] && (
@@ -161,7 +177,7 @@ const HomePage = () => {
                   <div className="card-footer d-flex justify-content-between align-items-center">
                     <span className="price">{product.price} DH</span>
                     <button className="btn btn-sm btn-outline-primary">
-                      <i className="bi bi-cart-plus"></i> Ajouter
+                      <i className="bi bi-cart-plus"></i> Ajouter au panier
                     </button>
                   </div>
                 </div>
@@ -215,10 +231,121 @@ const HomePage = () => {
         </div>
       </section>
 
+      {/* Section Catégories Populaires */}
+      <section className="categories-section">
+        <div className="container">
+          <h2 className="section-title text-center mb-5">Catégories populaires</h2>
+          <div className="row g-4">
+            <div className="col-md-3 col-sm-6">
+              <div className="category-card" onClick={() => navigate('/products')}>
+                <div className="category-icon">
+                  <i className="bi bi-laptop"></i>
+                </div>
+                <h5>Électronique</h5>
+                <p>Smartphones, laptops, accessoires</p>
+              </div>
+            </div>
+            <div className="col-md-3 col-sm-6">
+              <div className="category-card" onClick={() => navigate('/products')}>
+                <div className="category-icon">
+                  <i className="bi bi-bag"></i>
+                </div>
+                <h5>Mode & Style</h5>
+                <p>Vêtements, chaussures, accessoires</p>
+              </div>
+            </div>
+            <div className="col-md-3 col-sm-6">
+              <div className="category-card" onClick={() => navigate('/products')}>
+                <div className="category-icon">
+                  <i className="bi bi-house"></i>
+                </div>
+                <h5>Maison & Jardin</h5>
+                <p>Décoration, mobilier, jardinage</p>
+              </div>
+            </div>
+            <div className="col-md-3 col-sm-6">
+              <div className="category-card" onClick={() => navigate('/products')}>
+                <div className="category-icon">
+                  <i className="bi bi-heart"></i>
+                </div>
+                <h5>Beauté & Santé</h5>
+                <p>Cosmétiques, soins, parfums</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section Avantages */}
+      <section className="advantages-section">
+        <div className="container">
+          <div className="row align-items-center">
+            <div className="col-lg-6">
+              <h2 className="section-title">Pourquoi choisir E-co-maroc ?</h2>
+              <div className="advantages-list">
+                <div className="advantage-item">
+                  <div className="advantage-icon">
+                    <i className="bi bi-check-circle-fill"></i>
+                  </div>
+                  <div className="advantage-content">
+                    <h5>Paiement sécurisé</h5>
+                    <p>Vos transactions sont protégées par un cryptage SSL de niveau bancaire</p>
+                  </div>
+                </div>
+                <div className="advantage-item">
+                  <div className="advantage-icon">
+                    <i className="bi bi-arrow-return-left"></i>
+                  </div>
+                  <div className="advantage-content">
+                    <h5>Retour gratuit</h5>
+                    <p>Retournez vos articles dans les 30 jours pour un remboursement complet</p>
+                  </div>
+                </div>
+                <div className="advantage-item">
+                  <div className="advantage-icon">
+                    <i className="bi bi-award"></i>
+                  </div>
+                  <div className="advantage-content">
+                    <h5>Garantie qualité</h5>
+                    <p>Tous nos produits sont testés et certifiés par nos experts</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="col-lg-6">
+              <div className="advantages-stats">
+                <div className="stat-circle">
+                  <div className="stat-number">98%</div>
+                  <div className="stat-text">Satisfaction client</div>
+                </div>
+                <div className="stat-circle">
+                  <div className="stat-number">24h</div>
+                  <div className="stat-text">Livraison express</div>
+                </div>
+                <div className="stat-circle">
+                  <div className="stat-number">5⭐</div>
+                  <div className="stat-text">Note moyenne</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Section Avis Clients */}
       <section className="reviews-section">
         <div className="container">
-          <h2 className="section-title text-center mb-5">Ce que disent nos clients</h2>
+          <div className="d-flex justify-content-between align-items-center mb-5">
+            <h2 className="section-title">Ce que disent nos clients</h2>
+            <button 
+              className="btn btn-primary"
+              onClick={handleAddReview}
+            >
+              <i className="bi bi-plus-circle me-2"></i>
+              Ajouter un avis
+            </button>
+          </div>
+          
           <div className="row g-4 mb-4">
             {reviews.slice(0, 3).map((r, idx) => (
               <div className="col-md-4" key={idx}>
@@ -244,59 +371,101 @@ const HomePage = () => {
           </div>
 
           {/* Formulaire d'ajout d'avis */}
-          <div className="review-form-container mx-auto">
-            <h5 className="text-center mb-4">Laisser un avis</h5>
-            <form onSubmit={handleReviewSubmit}>
-              <div className="mb-3">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Votre nom"
-                  value={reviewForm.name}
-                  onChange={e => setReviewForm({ ...reviewForm, name: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="mb-3">
-                <textarea
-                  className="form-control"
-                  placeholder="Votre avis"
-                  rows="3"
-                  value={reviewForm.comment}
-                  onChange={e => setReviewForm({ ...reviewForm, comment: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="mb-3 d-flex align-items-center">
-                <span className="me-2">Évaluation :</span>
-                {[1,2,3,4,5].map(star => (
-                  <i
-                    key={star}
-                    className={`bi ${reviewForm.rating >= star ? 'bi-star-fill text-warning' : 'bi-star text-muted'}`}
-                    style={{cursor: 'pointer', fontSize: '1.3rem'}}
-                    onClick={() => setReviewForm({ ...reviewForm, rating: star })}
-                  ></i>
-                ))}
-              </div>
-              <button className="btn btn-primary w-100 mt-2" type="submit">Envoyer l'avis</button>
-            </form>
-          </div>
+          {showReviewForm && (
+            <div className="review-form-container mx-auto" ref={reviewFormRef}>
+              <h5 className="text-center mb-4">Laisser un avis</h5>
+              <form onSubmit={handleReviewSubmit}>
+                <div className="mb-3">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Votre nom"
+                    value={reviewForm.name}
+                    onChange={e => setReviewForm({ ...reviewForm, name: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="mb-3">
+                  <textarea
+                    className="form-control"
+                    placeholder="Votre avis"
+                    rows="3"
+                    value={reviewForm.comment}
+                    onChange={e => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="mb-3 d-flex align-items-center">
+                  <span className="me-2">Évaluation :</span>
+                  {[1,2,3,4,5].map(star => (
+                    <i
+                      key={star}
+                      className={`bi ${reviewForm.rating >= star ? 'bi-star-fill text-warning' : 'bi-star text-muted'}`}
+                      style={{cursor: 'pointer', fontSize: '1.3rem'}}
+                      onClick={() => setReviewForm({ ...reviewForm, rating: star })}
+                    ></i>
+                  ))}
+                </div>
+                <div className="d-flex gap-2">
+                  <button className="btn btn-primary flex-fill" type="submit">
+                    Envoyer l'avis
+                  </button>
+                  <button 
+                    className="btn btn-secondary" 
+                    type="button"
+                    onClick={() => setShowReviewForm(false)}
+                  >
+                    Annuler
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Section Newsletter */}
-      <section className="newsletter-section">
+      {/* Section FAQ */}
+      <section className="faq-section">
         <div className="container">
-          <div className="newsletter-card">
-            <div className="row align-items-center">
-              <div className="col-md-6">
-                <h3>Abonnez-vous à notre newsletter</h3>
-                <p>Recevez les dernières offres et nouveautés en exclusivité</p>
-              </div>
-              <div className="col-md-6">
-                <div className="input-group">
-                  <input type="email" className="form-control" placeholder="Votre email" />
-                  <button className="btn btn-primary" type="button">S'abonner</button>
+          <h2 className="section-title text-center mb-5">Questions fréquentes</h2>
+          <div className="row">
+            <div className="col-lg-8 mx-auto">
+              <div className="accordion" id="faqAccordion">
+                <div className="accordion-item">
+                  <h2 className="accordion-header">
+                    <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                      Comment puis-je passer une commande ?
+                    </button>
+                  </h2>
+                  <div id="faq1" className="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                    <div className="accordion-body">
+                      Vous pouvez passer une commande en naviguant sur notre site, en ajoutant les produits à votre panier et en procédant au checkout.
+                    </div>
+                  </div>
+                </div>
+                <div className="accordion-item">
+                  <h2 className="accordion-header">
+                    <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                      Quels sont les modes de paiement acceptés ?
+                    </button>
+                  </h2>
+                  <div id="faq2" className="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div className="accordion-body">
+                      Nous acceptons les cartes de crédit, PayPal, et le paiement à la livraison dans certaines zones.
+                    </div>
+                  </div>
+                </div>
+                <div className="accordion-item">
+                  <h2 className="accordion-header">
+                    <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                      Combien de temps prend la livraison ?
+                    </button>
+                  </h2>
+                  <div id="faq3" className="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div className="accordion-body">
+                      La livraison standard prend 24-48h dans les grandes villes et 3-5 jours dans les autres zones du Maroc.
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -329,7 +498,7 @@ const HomePage = () => {
               <ul className="footer-links">
                 <li><Link to="/">Accueil</Link></li>
                 <li><Link to="/products">Produits</Link></li>
-                <li><Link to="/about">À propos</Link></li>
+                <li><Link to="/cart">Panier</Link></li>
                 <li><Link to="/contact">Contact</Link></li>
               </ul>
             </div>
@@ -337,10 +506,10 @@ const HomePage = () => {
             <div className="col-6 col-md-3 col-lg-2 mb-4 mb-md-0">
               <h5>Catégories</h5>
               <ul className="footer-links">
-                <li><Link to="/products/electronics">Électronique</Link></li>
-                <li><Link to="/products/fashion">Mode</Link></li>
-                <li><Link to="/products/home">Maison</Link></li>
-                <li><Link to="/products/beauty">Beauté</Link></li>
+                <li><Link to="/products">Électronique</Link></li>
+                <li><Link to="/products">Mode</Link></li>
+                <li><Link to="/products">Maison</Link></li>
+                <li><Link to="/products">Beauté</Link></li>
               </ul>
             </div>
             
@@ -349,7 +518,7 @@ const HomePage = () => {
               <ul className="footer-contact">
                 <li>
                   <i className="bi bi-geo-alt"></i>
-                  <span>123 Avenue Mohammed VI, Casablanca, Maroc</span>
+                  <span>12 Matare, Safi, Maroc</span>
                 </li>
                 <li>
                   <i className="bi bi-telephone"></i>
@@ -357,7 +526,7 @@ const HomePage = () => {
                 </li>
                 <li>
                   <i className="bi bi-envelope"></i>
-                  <span>contact@e-co-maroc.ma</span>
+                  <span>E-co-maroc@gmail.eco.ma</span>
                 </li>
                 <li>
                   <i className="bi bi-clock"></i>
