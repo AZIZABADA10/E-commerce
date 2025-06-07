@@ -1,0 +1,51 @@
+/* Boutons */
+.nav-btns .btn {
+  margin-left: 0.5rem;
+  font-size: 0.95rem;
+  padding: 0.45rem 1.2rem;
+  border-radius: 0.35rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.nav-btns .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.25);
+}
+
+/* Lien actif avec un effet */
+.navbar-nav .nav-link.active {
+  color: #0d6efd;
+  font-weight: 600;
+  border-bottom: 2px solid #0d6efd;
+}
+
+/* Mobile menu */
+@media (max-width: 991px) {
+  .navbar-collapse {
+    background: white;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .navbar-nav .nav-link {
+    padding: 0.75rem 1rem;
+    border-radius: 0.35rem;
+    transition: background 0.2s ease;
+  }
+
+  .navbar-nav .nav-link:hover {
+    background-color: #f0f0f0;
+  }
+
+  .nav-btns {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .nav-btns .btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}

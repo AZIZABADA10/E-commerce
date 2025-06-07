@@ -60,9 +60,21 @@ exports.login = async (req, res) => {
 // routes/authRoutes.js
 const express = require('express');
 const router = express.Router();
+const { protect, adminOnly } = require('../middleware/authMiddleware');
+const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
 
+// Routes d'authentification
 router.post('/register', authController.register);
 router.post('/login', authController.login);
+
+// Routes profil utilisateur
+router.get('/profile', protect, authController.getUserProfile);
+router.put('/profile', protect, authController.updateUserProfile);
+
+// Routes admin pour la gestion des utilisateurs
+router.get('/users', protect, adminOnly, userController.getAllUsers);
+router.put('/users/:userId/role', protect, adminOnly, userController.updateUserRole);
+router.delete('/users/:userId', protect, adminOnly, userController.deleteUser);
 
 module.exports = router;

@@ -7,6 +7,9 @@ import ManageProductsPage from './pages/ManageProductsPage';
 import Navbar from './componenets/Navbar';
 import HomePage from './pages/HomePage';
 import CartPage from './pages/CartPage';
+import ProfilePage from './pages/ProfilePage';
+import AdminUsersPage from './pages/AdminUsersPage';
+import ProtectedRoute from './componenets/ProtectedRoute';
 
 function App() {
   return (
@@ -18,9 +21,13 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/" element={<HomePage />} />
         <Route path="/Products" element={<ProductsPage />} />
-        <Route path="/manage-products" element={<ManageProductsPage />} />
         <Route path="/orders" element={<OrdersPage />} />
         <Route path="/cart" element={<CartPage />} />
+        {/* Protected routes can be added here later */}
+         <Route path="/profile" element={<ProfilePage />} /> 
+        <Route path="/admin/users" element={<ProtectedRoute><AdminUsersPage /></ProtectedRoute>} />
+        <Route path="/admin/products" element={<ProtectedRoute><ManageProductsPage /></ProtectedRoute>} />
+
       </Routes>
     </BrowserRouter>
   );

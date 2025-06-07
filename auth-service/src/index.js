@@ -21,6 +21,7 @@ const connectWithRetry = async () => {
     console.log("✅ [auth-service] Connecté à MongoDB");
   } catch (err) {
     console.error("❌ MongoDB connection error:", err.message);
+    console.log("Tentative de reconnexion dans 5 secondes...");
     setTimeout(connectWithRetry, 5000);
   }
 };
@@ -46,7 +47,7 @@ app.listen(PORT, () => {
   connectWithRetry(); // Start DB connection after server starts
 });
 
-// Graceful shutdown
+
 process.on('SIGTERM', () => {
   console.log('SIGTERM received. Shutting down gracefully...');
   mongoose.connection.close(false, () => {

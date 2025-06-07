@@ -1,13 +1,51 @@
 import axios from 'axios';
-
+//les api des utilisateurs
 export const login = (data) =>
   axios.post('http://localhost:5001/api/auth/login', data);
 
 export const register = (data) =>
   axios.post('http://localhost:5001/api/auth/register', data);
 
+
+export const getUserProfile = () => {
+  const token = localStorage.getItem('token');
+  return axios.get('http://localhost:5001/api/users/profile', {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+};
+
+export const updateUserProfile = (data) => {
+  const token = localStorage.getItem('token');
+  return axios.put('http://localhost:5001/api/users/profile', data, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+};
+
+export const getAllUsers = () => {
+  const token = localStorage.getItem('token');
+  return axios.get('http://localhost:5001/api/users/admin/users', {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+};
+
+export const updateUserRole = (userId, data) => {
+  const token = localStorage.getItem('token');
+  return axios.put(`http://localhost:5001/api/users/admin/users/${userId}/role`, data, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+};
+
+export const deleteUser = (userId) => {
+  const token = localStorage.getItem('token');
+  return axios.delete(`http://localhost:5001/api/users/admin/users/${userId}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+};
+
+
+//les api des produits
 export const getProducts = () =>
-  axios.get('http://localhost:5002/api/products'); // URL correcte pour récupérer les produits
+  axios.get('http://localhost:5002/api/products'); 
 
 export const createProduct = (formData) => {
   return axios.post('http://localhost:5002/api/products', formData);
@@ -21,6 +59,8 @@ export const updateProduct = (id, data, isFormData = false) =>
 export const deleteProduct = (id) =>
   axios.delete(`http://localhost:5002/api/products/${id}`);
 
+
+//les api des commandes
 export const getOrders = () =>
   axios.get('http://localhost:5003/api/orders');
 
