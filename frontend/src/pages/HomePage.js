@@ -10,22 +10,75 @@ const initialReviews = [
   { name: "Mohamed", comment: "Bon qualité.", date: "2025-05-14", rating: 3 }
 ];
 
+// Composant Modal pour les détails du produit
+const ProductDetailModal = ({ product, onClose }) => {
+  if (!product) return null;
+
+  return (
+    <div className="modal-backdrop">
+      <div className="product-modal">
+        <button className="modal-close" onClick={onClose}>
+          <i className="bi bi-x-lg"></i>
+        </button>
+        
+        <div className="row">
+          <div className="col-md-6">
+            {product.images?.[0] && (
+              <img
+                src={`http://localhost:5002${product.images[0]}`}
+                alt={product.name}
+                className="img-fluid mb-4 modal-image"
+              />
+            )}
+          </div>
+          <div className="col-md-6">
+            <h3 className="modal-title">{product.name}</h3>
+            <p className="text-muted">{product.category}</p>
+            
+            <div className="product-rating mb-3">
+              {[...Array(5)].map((_, i) => (
+                <i key={i} className={`bi ${i < 4 ? 'bi-star-fill text-warning' : 'bi-star text-muted'}`}></i>
+              ))}
+              <span className="rating-count ms-2">(24 avis)</span>
+            </div>
+            
+            <p className="modal-description">{product.description}</p>
+            
+            <div className="d-flex justify-content-between align-items-center mt-4">
+              <span className="price h4">{product.price} DH</span>
+              <button className="btn btn-primary">
+                <i className="bi bi-cart-plus me-2"></i>Ajouter
+              </button>
+            </div>
+            
+            <div className="product-meta mt-4">
+              <p><i className="bi bi-check-circle me-2 text-success"></i>En stock</p>
+              <p><i className="bi bi-truck me-2"></i>Livraison en 24-48h</p>
+              <p><i className="bi bi-arrow-repeat me-2"></i>Retour gratuit sous 30 jours</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const HomePage = () => {
   const [products, setProducts] = useState([]);
   const [reviews, setReviews] = useState(initialReviews);
   const [reviewForm, setReviewForm] = useState({ name: '', comment: '', rating: 5 });
   const [currentSlide, setCurrentSlide] = useState(0);
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const reviewFormRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Récupère les produits pour la section "nouveaux produits"
     getProducts().then(res => {
-      setProducts(res.data.slice(-3).reverse()); // Les 3 derniers produits
+      setProducts(res.data.slice(-3).reverse());
     });
 
-    // Gestion du slider automatique
     const interval = setInterval(() => {
       setCurrentSlide(prev => (prev + 1) % 3);
     }, 5000);
@@ -51,56 +104,83 @@ const HomePage = () => {
     }, 100);
   };
 
-  // Fonction pour changer manuellement le slide
   const goToSlide = (index) => {
     setCurrentSlide(index);
   };
 
-  // Fonction pour rediriger vers la page produit
-  const handleProductClick = () => {
-    navigate(`/products`);
+  const goToPrevSlide = () => {
+    setCurrentSlide(prev => (prev === 0 ? 2 : prev - 1));
+  };
+
+  const goToNextSlide = () => {
+    setCurrentSlide(prev => (prev === 2 ? 0 : prev + 1));
+  };
+
+  const openProductModal = (product) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
+  };
+
+  const closeProductModal = () => {
+    setIsModalOpen(false);
+    setSelectedProduct(null);
   };
 
   return (
     <div className="home-container">
-      {/* Hero Slider */}
-      <div className="hero-slider">
-        <div className={`slide ${currentSlide === 0 ? 'active' : ''}`}>
-          <div className="slide-content">
-            <h1>Découvrez nos produits exclusifs</h1>
-            <p>Des promotions exceptionnelles vous attendent</p>
-            <Link to="/products" className="btn btn-primary">Découvrir</Link>
+      {/* Hero Slider modernisé */}
+      <div className="hero-slider-modern">
+        <div className="slider-wrapper">
+          <div className={`slide ${currentSlide === 0 ? 'active' : ''}`}>
+            <div className="slide-overlay"></div>
+            <img src="/images/slider1.png" alt="Promotion spéciale" />
+            <div className="slide-content">
+              <h1>Découvrez nos produits exclusifs</h1>
+              <p>Des promotions exceptionnelles vous attendent</p>
+              <Link to="/products" className="btn btn-light btn-lg">Découvrir</Link>
+            </div>
           </div>
-          <img src="/images/slider1.png" alt="Promotion spéciale" />
-        </div>
-        
-        <div className={`slide ${currentSlide === 1 ? 'active' : ''}`}>
-          <div className="slide-content">
-            <h1>Livraison rapide au Maroc</h1>
-            <p>Recevez vos commandes en 24-48h</p>
-            <Link to="/products" className="btn btn-primary">Acheter maintenant</Link>
+          
+          <div className={`slide ${currentSlide === 1 ? 'active' : ''}`}>
+            <div className="slide-overlay"></div>
+            <img src="/images/slider2.png" alt="Livraison rapide" />
+            <div className="slide-content">
+              <h1>Livraison rapide au Maroc</h1>
+              <p>Recevez vos commandes en 24-48h</p>
+              <Link to="/products" className="btn btn-primary btn-lg">Acheter maintenant</Link>
+            </div>
           </div>
-          <img src="/images/slider2.png" alt="Livraison rapide" />
-        </div>
-        
-        <div className={`slide ${currentSlide === 2 ? 'active' : ''}`}>
-          <div className="slide-content">
-            <h1>Des produits de qualité supérieure</h1>
-            <p>Certifiés et testés par nos experts</p>
-            <Link to="/products" className="btn btn-primary">Voir le catalogue</Link>
+          
+          <div className={`slide ${currentSlide === 2 ? 'active' : ''}`}>
+            <div className="slide-overlay"></div>
+            <img src="/images/slider3.png" alt="Produits de qualité" />
+            <div className="slide-content">
+              <h1>Des produits de qualité supérieure</h1>
+              <p>Certifiés et testés par nos experts</p>
+              <Link to="/products" className="btn btn-outline-light btn-lg">Voir le catalogue</Link>
+            </div>
           </div>
-          <img src="/images/slider3.png" alt="Produits de qualité" />
         </div>
         
         <div className="slider-controls">
-          {[0, 1, 2].map(index => (
-            <button 
-              key={index} 
-              className={`slider-dot ${currentSlide === index ? 'active' : ''}`}
-              onClick={() => goToSlide(index)}
-              aria-label={`Aller au slide ${index + 1}`}
-            />
-          ))}
+          <button className="slider-arrow prev" onClick={goToPrevSlide}>
+            <i className="bi bi-chevron-left"></i>
+          </button>
+          
+          <div className="slider-dots">
+            {[0, 1, 2].map(index => (
+              <button 
+                key={index} 
+                className={`slider-dot ${currentSlide === index ? 'active' : ''}`}
+                onClick={() => goToSlide(index)}
+                aria-label={`Aller au slide ${index + 1}`}
+              />
+            ))}
+          </div>
+          
+          <button className="slider-arrow next" onClick={goToNextSlide}>
+            <i className="bi bi-chevron-right"></i>
+          </button>
         </div>
       </div>
 
@@ -109,7 +189,7 @@ const HomePage = () => {
         <div className="container">
           <div className="row align-items-center">
             <div className="col-lg-6 mb-4 mb-lg-0">
-              <img src="/images/logoSysteme.png" alt="E-co-maroc" className="img-fluid rounded-4 shadow" />
+              <img src="/logoSysteme.png" alt="E-co-maroc" className="img-fluid rounded-4 shadow" />
             </div>
             <div className="col-lg-6">
               <h2 className="section-title">Bienvenue chez E-co-maroc</h2>
@@ -138,7 +218,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Section Nouveaux Produits */}
+      {/* Section Nouveaux Produits avec bouton Détails */}
       <section className="new-products-section">
         <div className="container">
           <div className="section-header">
@@ -149,11 +229,7 @@ const HomePage = () => {
           <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             {products.map(product => (
               <div className="col" key={product._id}>
-                <div 
-                  className="card h-100 product-card"
-                  onClick={() => handleProductClick()}
-                  style={{ cursor: 'pointer' }}
-                >
+                <div className="card h-100 product-card">
                   <div className="product-image-container">
                     {product.images?.[0] && (
                       <img
@@ -176,9 +252,17 @@ const HomePage = () => {
                   </div>
                   <div className="card-footer d-flex justify-content-between align-items-center">
                     <span className="price">{product.price} DH</span>
-                    <button className="btn btn-sm btn-outline-primary">
-                      <i className="bi bi-cart-plus"></i> Ajouter au panier
-                    </button>
+                    <div>
+                      <button 
+                        className="btn btn-sm btn-outline-secondary me-2"
+                        onClick={() => openProductModal(product)}
+                      >
+                        <i className="bi bi-eye"></i> Détails
+                      </button>
+                      <button className="btn btn-sm btn-primary">
+                        <i className="bi bi-cart-plus"></i> 
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -424,47 +508,138 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Section FAQ */}
+      {/* Section FAQ améliorée */}
       <section className="faq-section">
         <div className="container">
           <h2 className="section-title text-center mb-5">Questions fréquentes</h2>
           <div className="row">
-            <div className="col-lg-8 mx-auto">
-              <div className="accordion" id="faqAccordion">
-                <div className="accordion-item">
-                  <h2 className="accordion-header">
-                    <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
-                      Comment puis-je passer une commande ?
-                    </button>
-                  </h2>
-                  <div id="faq1" className="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
-                    <div className="accordion-body">
-                      Vous pouvez passer une commande en naviguant sur notre site, en ajoutant les produits à votre panier et en procédant au checkout.
+            <div className="col-lg-10 mx-auto">
+              <div className="faq-container">
+                <div className="faq-header">
+                  <h3>Informations Générales</h3>
+                  <p>Trouvez des réponses aux questions les plus courantes</p>
+                </div>
+                
+                <div className="accordion" id="faqAccordion">
+                  <div className="accordion-item">
+                    <h2 className="accordion-header">
+                      <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                        Comment puis-je passer une commande ?
+                      </button>
+                    </h2>
+                    <div id="faq1" className="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                      <div className="accordion-body">
+                        <p>Vous pouvez passer commande en suivant ces étapes simples :</p>
+                        <ol>
+                          <li>Naviguez dans notre catalogue et ajoutez les produits à votre panier</li>
+                          <li>Cliquez sur l'icône panier en haut à droite</li>
+                          <li>Vérifiez votre sélection et cliquez sur "Passer la commande"</li>
+                          <li>Complétez vos informations de livraison et paiement</li>
+                          <li>Confirmez votre commande</li>
+                        </ol>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="accordion-item">
+                    <h2 className="accordion-header">
+                      <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                        Quels sont les modes de paiement acceptés ?
+                      </button>
+                    </h2>
+                    <div id="faq2" className="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                      <div className="accordion-body">
+                        <p>Nous acceptons plusieurs méthodes de paiement sécurisées :</p>
+                        <ul>
+                          <li><strong>Carte bancaire</strong> (Visa, Mastercard, CMI)</li>
+                          <li><strong>Paiement à la livraison</strong> (disponible dans les grandes villes)</li>
+                          <li><strong>Virement bancaire</strong></li>
+                          <li><strong>Portefeuille électronique</strong> (Flooz, Tmoney)</li>
+                        </ul>
+                        <p className="mt-3"><i className="bi bi-shield-lock me-2 text-primary"></i>Toutes les transactions sont cryptées et sécurisées.</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="accordion-item">
+                    <h2 className="accordion-header">
+                      <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                        Combien de temps prend la livraison ?
+                      </button>
+                    </h2>
+                    <div id="faq3" className="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                      <div className="accordion-body">
+                        <p>Nos délais de livraison varient selon votre localisation :</p>
+                        <div className="delivery-table">
+                          <div className="delivery-row">
+                            <div className="delivery-region">Grandes villes (Casablanca, Rabat, Marrakech)</div>
+                            <div className="delivery-time">24-48 heures</div>
+                          </div>
+                          <div className="delivery-row">
+                            <div className="delivery-region">Villes secondaires</div>
+                            <div className="delivery-time">2-3 jours</div>
+                          </div>
+                          <div className="delivery-row">
+                            <div className="delivery-region">Zones rurales</div>
+                            <div className="delivery-time">3-5 jours</div>
+                          </div>
+                        </div>
+                        <p className="mt-3"><i className="bi bi-info-circle me-2 text-primary"></i>Vous recevrez un SMS avec un lien de suivi dès l'expédition de votre commande.</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="accordion-item">
+                    <h2 className="accordion-header">
+                      <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                        Quelle est votre politique de retour ?
+                      </button>
+                    </h2>
+                    <div id="faq4" className="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                      <div className="accordion-body">
+                        <p>Notre politique de retour :</p>
+                        <ul>
+                          <li>Délai de retour : <strong>30 jours</strong> après réception</li>
+                          <li>Produits doivent être dans leur état d'origine (emballage inclus)</li>
+                          <li>Les retours sont <strong>gratuits</strong> pour les articles défectueux</li>
+                          <li>Pour les retours sans raison valable, les frais de retour sont à votre charge</li>
+                        </ul>
+                        <div className="alert alert-info mt-3">
+                          <i className="bi bi-lightbulb me-2"></i>
+                          Pour initier un retour, contactez notre service client via votre espace client ou par téléphone.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="accordion-item">
+                    <h2 className="accordion-header">
+                      <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                        Proposez-vous une garantie sur vos produits ?
+                      </button>
+                    </h2>
+                    <div id="faq5" className="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                      <div className="accordion-body">
+                        <p>Oui, tous nos produits bénéficient d'une garantie :</p>
+                        <ul>
+                          <li><strong>Électronique</strong> : 12-24 mois selon le produit</li>
+                          <li><strong>Appareils électroménagers</strong> : 24 mois</li>
+                          <li><strong>Autres produits</strong> : 6 mois minimum</li>
+                        </ul>
+                        <p className="mt-3">La garantie couvre les défauts de fabrication. Conservez votre facture d'achat comme justificatif.</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div className="accordion-item">
-                  <h2 className="accordion-header">
-                    <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
-                      Quels sont les modes de paiement acceptés ?
-                    </button>
-                  </h2>
-                  <div id="faq2" className="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                    <div className="accordion-body">
-                      Nous acceptons les cartes de crédit, PayPal, et le paiement à la livraison dans certaines zones.
-                    </div>
-                  </div>
-                </div>
-                <div className="accordion-item">
-                  <h2 className="accordion-header">
-                    <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
-                      Combien de temps prend la livraison ?
-                    </button>
-                  </h2>
-                  <div id="faq3" className="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-                    <div className="accordion-body">
-                      La livraison standard prend 24-48h dans les grandes villes et 3-5 jours dans les autres zones du Maroc.
-                    </div>
+                
+                <div className="faq-support mt-5">
+                  <div className="support-card">
+                    <i className="bi bi-question-circle"></i>
+                    <h4>Vous avez d'autres questions ?</h4>
+                    <p>Notre équipe support est disponible 7j/7 pour vous aider</p>
+                    <Link to="/contact" className="btn btn-outline-primary">
+                      <i className="bi bi-chat-left-text me-2"></i>Contactez-nous
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -552,6 +727,14 @@ const HomePage = () => {
           </div>
         </div>
       </footer>
+
+      {/* Modal des détails du produit */}
+      {isModalOpen && (
+        <ProductDetailModal 
+          product={selectedProduct} 
+          onClose={closeProductModal} 
+        />
+      )}
     </div>
   );
 };
