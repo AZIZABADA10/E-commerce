@@ -1,0 +1,14 @@
+body.modal-open {
+  height: 100vh;
+  overflow-y: hidden;
+  position: fixed;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-info { background-color: #17a2b8; border-color: #17a2b8; }
+.btn-info:hover { background-color: #138496; }

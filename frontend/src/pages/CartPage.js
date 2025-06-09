@@ -14,7 +14,8 @@ const CartPage = () => {
     email: '',
     adresse: '',
     ville: '',
-    codePostal: ''
+    codePostal: '', 
+    image: '/logoSysteme.png'
   });
 
   useEffect(() => {
@@ -95,110 +96,138 @@ const CartPage = () => {
     return true;
   };
 
-  const generatePDF = () => {
-    if (!validateForm()) return;
+  const loadImageAsBase64 = (url) => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous'; 
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      canvas.getContext('2d').drawImage(img, 0, 0);
+      resolve(canvas.toDataURL('image/png'));
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+};
 
-    try {
-      const doc = new jsPDF();
-      
-      // Configuration
-      const primaryColor = [0, 102, 204];
-      const textColor = [0, 0, 0];
-      const grayColor = [128, 128, 128];
-      
-      // En-tête
-      doc.setFontSize(20);
-      doc.setTextColor(...primaryColor);
-      doc.text('FACTURE DE COMMANDE', 105, 20, null, null, 'center');
-      
-      // Informations commande
-      doc.setFontSize(12);
-      doc.setTextColor(...textColor);
-      doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 20, 35);
-      doc.text(`Numéro: CMD-${Date.now().toString().slice(-8)}`, 20, 45);
+const generatePDF = async () => {
+  if (!validateForm()) return;
 
-      // Informations client
-      doc.setFontSize(14);
-      doc.setTextColor(...primaryColor);
-      doc.text('INFORMATIONS CLIENT', 20, 65);
-      doc.setFontSize(11);
-      doc.setTextColor(...textColor);
-      
-      let yPos = 75;
-      doc.text(`Nom: ${customerInfo.nom} ${customerInfo.prenom}`, 20, yPos);
-      doc.text(`Téléphone: ${customerInfo.telephone}`, 20, yPos + 10);
-      doc.text(`Email: ${customerInfo.email}`, 20, yPos + 20);
-      doc.text(`Adresse: ${customerInfo.adresse}`, 20, yPos + 30);
-      doc.text(`Ville: ${customerInfo.ville} ${customerInfo.codePostal}`, 20, yPos + 40);
+  try {
+    const doc = new jsPDF();
+    const logoBase64 = await loadImageAsBase64(customerInfo.image || '/logoSysteme.png');
 
-      // Séparation
-      doc.setDrawColor(...primaryColor);
-      doc.line(20, yPos + 50, 190, yPos + 50);
+    // Configuration couleurs
+    const primaryColor = [0, 102, 204];
+    const textColor = [0, 0, 0];
+    const grayColor = [128, 128, 128];
 
-      // Détails produits
-      yPos += 65;
-      doc.setFontSize(14);
-      doc.setTextColor(...primaryColor);
-      doc.text('DÉTAILS DE LA COMMANDE', 20, yPos);
-      
-      // En-têtes tableau
-      yPos += 10;
-      doc.setFontSize(10);
-      doc.setTextColor(...textColor);
-      doc.text('Produit', 20, yPos);
-      doc.text('Qté', 120, yPos);
-      doc.text('Prix Unit.', 140, yPos);
-      doc.text('Total', 170, yPos);
-      
-      doc.line(20, yPos + 3, 190, yPos + 3);
-      yPos += 10;
-      
-      // Produits
-      cart.forEach((item) => {
-        const itemTotal = (parseFloat(item.price) * item.quantity);
-        doc.text(item.name.substring(0, 35), 20, yPos);
-        doc.text(item.quantity.toString(), 120, yPos);
-        doc.text(`${parseFloat(item.price).toFixed(2)} DH`, 140, yPos);
-        doc.text(`${itemTotal.toFixed(2)} DH`, 170, yPos);
-        yPos += 8;
-      });
+    // Ajout logo
+    doc.addImage(logoBase64, 'PNG', 15, 10, 30, 30);
 
-      // Total
-      doc.line(140, yPos, 190, yPos);
-      yPos += 10;
-      doc.setFontSize(12);
-      doc.setFont(undefined, 'bold');
-      doc.text(`TOTAL: ${getTotalPrice()} DH`, 160, yPos, null, null, 'right');
+    // En-tête texte
+    doc.setFontSize(20);
+    doc.setTextColor(...primaryColor);
+    doc.text('FACTURE DE COMMANDE', 105, 25, null, null, 'center');
 
-      // Pied de page
-      yPos += 20;
-      doc.setFontSize(10);
-      doc.setFont(undefined, 'normal');
-      doc.setTextColor(...grayColor);
-      doc.text('Merci pour votre commande !', 105, yPos, null, null, 'center');
-      doc.text(`Nombre total d'articles: ${getTotalItems()}`, 105, yPos + 10, null, null, 'center');
+    // Ligne de séparation
+    doc.setDrawColor(...primaryColor);
+    doc.line(20, 45, 190, 45);
 
-      // Téléchargement
-      doc.save(`commande-${Date.now()}.pdf`);
-      
-      toast.success('PDF généré avec succès !');
-      clearCart();
-      setShowOrderForm(false);
-      setCustomerInfo({
-        nom: '',
-        prenom: '',
-        telephone: '',
-        email: '',
-        adresse: '',
-        ville: '',
-        codePostal: ''
-      });
+    // Informations de commande
+    doc.setFontSize(12);
+    doc.setTextColor(...textColor);
+    doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 20, 55);
+    doc.text(`Numéro: CMD-${Date.now().toString().slice(-8)}`, 20, 65);
 
-    } catch (error) {
-      console.error('Erreur lors de la génération du PDF:', error);
-      toast.error('Erreur lors de la génération du PDF');
-    }
-  };
+    // Infos client
+    doc.setFontSize(14);
+    doc.setTextColor(...primaryColor);
+    doc.text('INFORMATIONS CLIENT', 20, 80);
+
+    doc.setFontSize(11);
+    doc.setTextColor(...textColor);
+    let yPos = 90;
+    doc.text(`Nom: ${customerInfo.nom} ${customerInfo.prenom}`, 20, yPos);
+    doc.text(`Téléphone: ${customerInfo.telephone}`, 20, yPos + 10);
+    doc.text(`Email: ${customerInfo.email}`, 20, yPos + 20);
+    doc.text(`Adresse: ${customerInfo.adresse}`, 20, yPos + 30);
+    doc.text(`Ville: ${customerInfo.ville} ${customerInfo.codePostal}`, 20, yPos + 40);
+
+    // Séparation
+    doc.setDrawColor(...primaryColor);
+    doc.line(20, yPos + 50, 190, yPos + 50);
+
+    // Détails produits
+    yPos += 65;
+    doc.setFontSize(14);
+    doc.setTextColor(...primaryColor);
+    doc.text('DÉTAILS DE LA COMMANDE', 20, yPos);
+
+    yPos += 10;
+    doc.setFontSize(10);
+    doc.setTextColor(...textColor);
+    doc.text('Produit', 20, yPos);
+    doc.text('Qté', 120, yPos);
+    doc.text('Prix Unit.', 140, yPos);
+    doc.text('Total', 170, yPos);
+    doc.line(20, yPos + 3, 190, yPos + 3);
+    yPos += 10;
+
+    cart.forEach((item) => {
+      const itemTotal = (parseFloat(item.price) * item.quantity);
+      doc.text(item.name.substring(0, 35), 20, yPos);
+      doc.text(item.quantity.toString(), 120, yPos);
+      doc.text(`${parseFloat(item.price).toFixed(2)} DH`, 140, yPos);
+      doc.text(`${itemTotal.toFixed(2)} DH`, 170, yPos);
+      yPos += 8;
+
+      if (yPos > 270) {
+        doc.addPage();
+        yPos = 20;
+      }
+    });
+
+    // Total général
+    doc.line(140, yPos, 190, yPos);
+    yPos += 10;
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'bold');
+    doc.text(`TOTAL: ${getTotalPrice()} DH`, 160, yPos, null, null, 'right');
+
+    // Pied de page
+    yPos += 20;
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.setTextColor(...grayColor);
+    doc.text('Merci pour votre commande !', 105, yPos, null, null, 'center');
+    doc.text(`Nombre total d'articles: ${getTotalItems()}`, 105, yPos + 10, null, null, 'center');
+
+    // Téléchargement
+    doc.save(`commande-${Date.now()}.pdf`);
+
+    toast.success('PDF généré avec succès !');
+    clearCart();
+    setShowOrderForm(false);
+    setCustomerInfo({
+      nom: '',
+      prenom: '',
+      telephone: '',
+      email: '',
+      adresse: '',
+      ville: '',
+      codePostal: '',
+      image: '/logoSysteme.png'
+    });
+
+  } catch (error) {
+    console.error('Erreur lors de la génération du PDF:', error);
+    toast.error('Erreur lors de la génération du PDF');
+  }
+};
+
 
   if (cart.length === 0) {
     return (
@@ -435,7 +464,6 @@ const CartPage = () => {
                     </div>
                   </div>
                 </div>
-
                 <div className="mt-3 d-flex gap-2">
                   <button
                     type="button"
