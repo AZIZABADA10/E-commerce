@@ -18,7 +18,6 @@ Une application e-commerce moderne développée avec une architecture **microser
   - Auth Service
   - Product Service
   - Order Service
-  - API Gateway
 
 ---
 
