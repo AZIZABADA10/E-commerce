@@ -1,4 +1,3 @@
-```markdown
 # E-commerce Microservices Application
 
 Une application e-commerce moderne développée avec une architecture **microservices**. Elle permet la gestion complète d'un catalogue de produits, des commandes, des utilisateurs et de l'authentification via JWT, tout en utilisant **RabbitMQ** pour la communication inter-services.
@@ -100,11 +99,8 @@ docker-compose up --build
 * CI/CD avec GitHub Actions
 * Monitoring (Prometheus, Grafana)
 
----
-
----
 
 ## Auteur
 
 **AZIZ ABADA**
-Étudiant Web-Full‑Stack
+Étudiant Web-Full‑Stack a ISTA NTIC SAFI
